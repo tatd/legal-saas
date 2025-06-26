@@ -5,19 +5,31 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm -rf dist && tspc && cp -R ./src/db/migrations ./dist/db",
+    "build": "rm -rf dist && tsc",
     "dev": "NODE_PATH=src nodemon --watch src -e ts --exec ts-node -r dotenv/config src/index.ts",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "knex": "knex",
+    "migrate": "knex migrate:latest",
+    "migrate:make": "knex migrate:make",
+    "migrate:rollback": "knex migrate:rollback",
+    "seed:make": "knex seed:make",
+    "seed:run": "knex seed:run",
+    "seed:dev": "NODE_ENV=development knex seed:run",
+    "seed:prod": "NODE_ENV=production knex seed:run"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^16.3.1",
     "express": "^5.1.0",
-    "node-postgres": "^0.6.2",
-    "postgres-migrations": "^5.3.0"
+    "knex": "^3.1.0",
+    "pg": "^8.11.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
+    "@types/knex": "^0.16.1",
     "@types/node": "^24.0.4",
     "@types/pg": "^8.15.4",
     "dotenv": "^16.5.0",

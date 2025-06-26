@@ -1,37 +1,80 @@
-import path from 'path';
-import { Pool } from 'pg';
-import { migrate } from 'postgres-migrations';
+import knex, { Knex } from 'knex';
+import knexConfig from '../../knexfile';
 
-const poolConfig = {
-  database: process.env.DATABASE,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  max: Number(process.env.DB_POOL_SIZE),
-  idleTimeoutMillis: Number(process.env.DB_POOL_CLIENT_IDLE_TIMEOUT),
-  connectionTimeoutMillis: Number(process.env.DB_POOL_CLIENT_CONNECTION_TIMEOUT)
-};
+const environment = process.env.NODE_ENV || 'development';
+const config = knexConfig[environment];
 
-class Database {
-  pool: Pool;
-
-  constructor() {
-    this.pool = new Pool(poolConfig);
-  }
-
-  runMigrations = async (): Promise<void> => {
-    const client = await this.pool.connect();
-    try {
-      await migrate({ client }, path.resolve(__dirname, 'migrations/sql'));
-    } catch (err) {
-      console.error('migration failed', err);
-    } finally {
-      client.release();
-    }
-  };
+if (!config) {
+  throw new Error(`No Knex configuration found for environment: ${environment}`);
 }
 
-const db = new Database();
+class Database {
+  private static instance: Database;
+  private _knex: Knex;
+  private _initialized: boolean = false;
+
+  private constructor() {
+    this._knex = knex(config);
+  }
+
+  public static getInstance(): Database {
+    if (!Database.instance) {
+      Database.instance = new Database();
+    }
+    return Database.instance;
+  }
+
+  public get knex(): Knex {
+    if (!this._knex) {
+      throw new Error('Database not initialized');
+    }
+    return this._knex;
+  }
+
+  public async initialize(): Promise<void> {
+    if (this._initialized) return;
+    
+    try {
+      await this._knex.raw('SELECT 1');
+      this._initialized = true;
+      console.log('Database connection established successfully');
+    } catch (error) {
+      console.error('Failed to connect to the database:', error);
+      throw error;
+    }
+  }
+
+  public async close(): Promise<void> {
+    if (this._knex) {
+      await this._knex.destroy();
+      this._initialized = false;
+      console.log('Database connection closed');
+    }
+  }
+
+  public async migrateLatest(): Promise<void> {
+    try {
+      await this.initialize();
+      await this._knex.migrate.latest();
+      console.log('Migrations completed successfully');
+    } catch (error) {
+      console.error('Migration failed:', error);
+      throw error;
+    }
+  }
+
+  public async migrateRollback(): Promise<void> {
+    try {
+      await this.initialize();
+      await this._knex.migrate.rollback();
+      console.log('Rollback completed successfully');
+    } catch (error) {
+      console.error('Rollback failed:', error);
+      throw error;
+    }
+  }
+}
+
+const db = Database.getInstance();
 
 export default db;
