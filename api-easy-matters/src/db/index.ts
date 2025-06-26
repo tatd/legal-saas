@@ -1,4 +1,4 @@
-import knex, { Knex } from 'knex';
+import { Knex, knex } from 'knex';
 import knexConfig from '../../knexfile';
 
 const environment = process.env.NODE_ENV || 'development';
@@ -8,73 +8,66 @@ if (!config) {
   throw new Error(`No Knex configuration found for environment: ${environment}`);
 }
 
-class Database {
-  private static instance: Database;
-  private _knex: Knex;
-  private _initialized: boolean = false;
+let _knex: Knex | null = null;
+let _initialized = false;
 
-  private constructor() {
-    this._knex = knex(config);
+function getKnex(): Knex {
+  if (!_knex) {
+    throw new Error('Database not initialized');
   }
+  return _knex;
+}
 
-  public static getInstance(): Database {
-    if (!Database.instance) {
-      Database.instance = new Database();
-    }
-    return Database.instance;
-  }
-
-  public get knex(): Knex {
-    if (!this._knex) {
-      throw new Error('Database not initialized');
-    }
-    return this._knex;
-  }
-
-  public async initialize(): Promise<void> {
-    if (this._initialized) return;
-    
-    try {
-      await this._knex.raw('SELECT 1');
-      this._initialized = true;
-      console.log('Database connection established successfully');
-    } catch (error) {
-      console.error('Failed to connect to the database:', error);
-      throw error;
-    }
-  }
-
-  public async close(): Promise<void> {
-    if (this._knex) {
-      await this._knex.destroy();
-      this._initialized = false;
-      console.log('Database connection closed');
-    }
-  }
-
-  public async migrateLatest(): Promise<void> {
-    try {
-      await this.initialize();
-      await this._knex.migrate.latest();
-      console.log('Migrations completed successfully');
-    } catch (error) {
-      console.error('Migration failed:', error);
-      throw error;
-    }
-  }
-
-  public async migrateRollback(): Promise<void> {
-    try {
-      await this.initialize();
-      await this._knex.migrate.rollback();
-      console.log('Rollback completed successfully');
-    } catch (error) {
-      console.error('Rollback failed:', error);
-      throw error;
-    }
+async function initialize(): Promise<void> {
+  if (_initialized) return;
+  
+  try {
+    _knex = knex(config);
+    await _knex.raw('SELECT 1');
+    _initialized = true;
+    console.log('Database connection established successfully');
+  } catch (error) {
+    console.error('Failed to connect to the database:', error);
+    throw error;
   }
 }
 
-const db = Database.getInstance();
+async function close(): Promise<void> {
+  if (_knex) {
+    await _knex.destroy();
+    _knex = null;
+    _initialized = false;
+    console.log('Database connection closed');
+  }
+}
 
-export default db;
+// Migration functions
+async function migrateLatest(): Promise<void> {
+  try {
+    await initialize();
+    await getKnex().migrate.latest();
+    console.log('Migrations completed successfully');
+  } catch (error) {
+    console.error('Migration failed:', error);
+    throw error;
+  }
+}
+
+async function migrateRollback(): Promise<void> {
+  try {
+    await initialize();
+    await getKnex().migrate.rollback();
+    console.log('Rollback completed successfully');
+  } catch (error) {
+    console.error('Rollback failed:', error);
+    throw error;
+  }
+}
+
+export default {
+  knex: getKnex,
+  initialize,
+  close,
+  migrateLatest,
+  migrateRollback
+};
