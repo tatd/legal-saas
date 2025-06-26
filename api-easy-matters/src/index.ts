@@ -8,13 +8,14 @@ app.use(express.json());
 
 // Health check endpoint
 app.get('/', (req: Request, res: Response) => {
-  res.json({ status: 'ok', message: 'API is running' });
+  res.status(200).json({ status: 'ok', message: 'Health check ok' });
 });
 
 // Get all users
 app.get('/api/users', async (req: Request, res: Response) => {
   try {
-    const users = await db.knex
+    const users = await db
+      .knex()
       .select('id', 'email', 'firm_name', 'created_at')
       .from('users');
     res.json(users);
