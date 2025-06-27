@@ -1,3 +1,5 @@
+// TODO combine types
+
 export type User = {
   id: number;
   email: string;
@@ -20,4 +22,18 @@ export type Customer = {
   name: string;
   phoneNumber: string;
   isActive: boolean;
+};
+
+export type CreateMatterData = {
+  name: string;
+  description: string;
+  customerId: number;
+};
+
+export type Matter = {
+  id: number;
+  name: string;
+  description: string;
+  customerId: number;
+  createdAt: string;
 };
