@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import db from './db';
 import * as authService from 'services/auth.service';
+import * as customersService from 'services/customers.service';
 import { CreateUserData } from 'types';
 
 const PORT = process.env.PORT || 3001;
@@ -60,7 +61,15 @@ app.get('/api/auth/me', (req: Request, res: Response): void => {
 });
 
 // Get list of customers
-// app.get('/api/customers')
+app.get('/api/customers', async (require, res) => {
+  try {
+    const customers = await customersService.getCustomers();
+    res.json(customers);
+  } catch (error) {
+    console.error('Error fetching customers: ', error);
+    res.status(500).json({ error: 'Failed to fetch customers' });
+  }
+});
 
 // Get all users
 app.get('/api/users', async (req: Request, res: Response) => {
