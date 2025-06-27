@@ -120,13 +120,32 @@ app.put('/api/customers/:id', authenticateToken, async (req, res) => {
     const customer = await customersService.updateCustomer(id, updateData);
     res.json(customer);
   } catch (error) {
-    if (error instanceof Error && error.message === 'Customer not found') {
-      res.status(404).json({ error: 'Customer not found' });
-    } else if (error instanceof Error && error.message === 'Error updating customer') {
+    if (error instanceof Error && error.message === 'Error updating customer') {
       res.status(400).json({ error: 'Error updating customer' });
     } else {
       console.error('Error updating customer:', error);
       res.status(500).json({ error: 'Failed to update customer' });
+    }
+  }
+});
+
+// Delete a single customer
+app.delete('/api/customers/:id', authenticateToken, async (req, res) => {
+  try {
+    const id = +req.params.id;
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'Invalid customer ID' });
+      return;
+    }
+
+    const customer = await customersService.deleteCustomer(id);
+    res.json(customer);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Error deleting customer') {
+      res.status(400).json({ error: 'Error deleting customer' });
+    } else {
+      console.error('Error deleting customer:', error);
+      res.status(500).json({ error: 'Failed to delete customer' });
     }
   }
 });

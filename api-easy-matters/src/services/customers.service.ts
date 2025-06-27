@@ -81,13 +81,38 @@ export async function updateCustomer(
 
   //TODO handle specific case where customer id doesn't exist
   if (!customerRaw) {
-    throw new Error('Customer not found');
+    throw new Error('Error updating customer');
   } else {
     return {
       id: customerRaw.id,
       name: customerRaw.name,
       phoneNumber: customerRaw.phone_number,
-      isActive: customerRaw.isActive
+      isActive: customerRaw.is_active
+    };
+  }
+}
+
+// Delete a customer
+// Set is_active to false
+export async function deleteCustomer(id: number): Promise<Customer> {
+  const [customerRaw] = await db
+    .knex()('customers')
+    .update({
+      is_active: false,
+      updated_at: new Date()
+    })
+    .where({ id })
+    .returning('*');
+
+  //TODO handle specific case where customer id doesn't exist
+  if (!customerRaw) {
+    throw new Error('Error deleting customer');
+  } else {
+    return {
+      id: customerRaw.id,
+      name: customerRaw.name,
+      phoneNumber: customerRaw.phone_number,
+      isActive: customerRaw.is_active
     };
   }
 }
