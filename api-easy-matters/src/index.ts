@@ -20,6 +20,25 @@ app.post('/api/auth/signup', async (req: Request, res: Response) => {
   res.status(201).json(user);
 });
 
+app.post('/api/auth/login', async (req: Request, res: Response) => {
+  try {
+    const { email, firmName, password } = req.body;
+    const result = await authService.login(
+      db.knex(),
+      email,
+      firmName,
+      password
+    );
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(401).json({ error: 'Invalid credentials' });
+  }
+});
+
+// Login and get token
+app.post('api/auth/login', async (req: Request, res: Response) => {});
+
 // Get all users
 app.get('/api/users', async (req: Request, res: Response) => {
   try {
