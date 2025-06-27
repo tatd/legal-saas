@@ -11,7 +11,7 @@ export async function seed(knex: Knex): Promise<void> {
   const password2 = await bcrypt.hash('password2', saltRounds);
 
   // Inserts seed entries
-  return knex('users').insert([
+  await knex('users').insert([
     {
       email: 'dennis@sample.com',
       firm_name: 'Dennis Law',
