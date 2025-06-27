@@ -29,6 +29,7 @@ export async function getMatters(customerId: number): Promise<Matter[]> {
   const mattersRaw = await db
     .knex()('matters')
     .select('id', 'name', 'description', 'customer_id', 'created_at')
+    .where({ customer_id: customerId })
     .orderBy('created_at');
 
   const matters = [];
