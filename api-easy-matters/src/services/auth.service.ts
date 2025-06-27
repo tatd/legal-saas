@@ -17,6 +17,7 @@ export type User = {
 //   updated_at: Date;
 // };
 
+// Insert user into the db
 export async function createUser(
   db: Knex,
   createUserInput: CreateUserData
@@ -39,6 +40,58 @@ export async function createUser(
     id: user.id,
     email: user.email,
     firmName: user.firm_name
+  };
+}
+
+// Get hashed password for matching email and firm name
+// Verify password and hashed password
+// Return JWT token
+export async function login(
+  db: Knex,
+  email: string,
+  firmName: string,
+  password: string
+): Promise<{ token: string; user: Omit<User, 'password'> }> {
+  // Find user by email and firm name
+  const user = await db('users')
+    .where({
+      email,
+      firm_name: firmName
+    })
+    .first();
+
+  if (!user) {
+    throw new Error('Invalid email or firm name');
+  }
+
+  // Verify password
+  const isPasswordValid = await verifyPassword(password, user.password_hash);
+  if (!isPasswordValid) {
+    throw new Error('Invalid password');
+  }
+
+  // Generate JWT token
+  const jwt = require('jsonwebtoken');
+  const secret = process.env.JWT_SECRET || 'secret-key';
+  const token = jwt.sign(
+    {
+      userId: user.id,
+      email: user.email,
+      firmName: user.firm_name
+    },
+    secret,
+    { expiresIn: '24h' }
+  );
+
+  // 4. Return token and user info (without password)
+  // const { password_hash, ...userWithoutPassword } = user;
+  return {
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      firmName: user.firm_name
+    }
   };
 }
 
