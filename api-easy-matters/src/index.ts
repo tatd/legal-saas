@@ -9,22 +9,22 @@ const app = express();
 app.use(express.json());
 
 // Health check endpoint
-app.get('/', (res: Response) => {
+app.get('/', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Health check ok' });
 });
 
 // Create a new user
 app.post('/api/auth/signup', async (req: Request, res: Response) => {
   const data: CreateUserData = req.body;
-  const user = await authService.createUser(db.knex(), data);
+  const user = await authService.createUser(data);
   res.status(201).json(user);
 });
 
 // Login and get token
 app.post('/api/auth/login', async (req: Request, res: Response) => {
   try {
-    const { email, firmName, password } = req.body;
-    const result = await authService.login(db.knex(), email, password);
+    const { email, password } = req.body;
+    const result = await authService.login(email, password);
     res.json(result);
   } catch (error) {
     console.error(error);
