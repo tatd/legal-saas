@@ -8,15 +8,6 @@ export type User = {
   firmName: string;
 };
 
-// export type UserDb = {
-//   id: number;
-//   email: string;
-//   firm_name: string;
-//   password_hash: string;
-//   created_at: Date;
-//   updated_at: Date;
-// };
-
 // Insert user into the db
 export async function createUser(
   createUserData: CreateUserData
@@ -49,7 +40,7 @@ export async function createUser(
 export async function login(
   email: string,
   password: string
-): Promise<{ token: string; user: Omit<User, 'password'> }> {
+): Promise<{ access_token: string; user: Omit<User, 'password'> }> {
   // Find user by email and firm name
   const user = await db.knex()('users').where({ email }).first();
 
@@ -78,7 +69,7 @@ export async function login(
 
   // Return token and user info
   return {
-    token,
+    access_token: token,
     user: {
       id: user.id,
       email: user.email,
