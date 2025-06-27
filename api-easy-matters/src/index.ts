@@ -3,7 +3,7 @@ import db from './db';
 import * as authService from 'services/auth.service';
 import * as customersService from 'services/customers.service';
 import { authenticateToken } from './middleware/auth.middleware';
-import { CreateUserData } from 'types';
+import { CreateCustomerData, CreateUserData } from 'types';
 
 const PORT = process.env.PORT || 3001;
 
@@ -62,7 +62,7 @@ app.get('/api/auth/me', (req: Request, res: Response): void => {
 });
 
 // Get list of customers
-app.get('/api/customers', authenticateToken, async (req: Request, res: Response) => {
+app.get('/api/customers', authenticateToken, async (req, res) => {
   try {
     const customers = await customersService.getCustomers();
     res.json(customers);
@@ -70,6 +70,13 @@ app.get('/api/customers', authenticateToken, async (req: Request, res: Response)
     console.error('Error fetching customers: ', error);
     res.status(500).json({ error: 'Failed to fetch customers' });
   }
+});
+
+// Create customer
+app.post('/api/customers', authenticateToken, async (req, res) => {
+  const data: CreateCustomerData = req.body;
+  const customer = await customersService.createCustomer(data);
+  res.status(201).json(customer);
 });
 
 // Get all users

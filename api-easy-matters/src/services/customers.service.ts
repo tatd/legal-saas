@@ -1,11 +1,5 @@
 import db from 'db';
-
-export type Customer = {
-  id: number;
-  name: string;
-  phoneNumber: string;
-  isActive: boolean;
-};
+import { CreateCustomerData, Customer } from 'types';
 
 export async function getCustomers(): Promise<Customer[]> {
   const customersRaw = await db
@@ -22,4 +16,26 @@ export async function getCustomers(): Promise<Customer[]> {
     });
   }
   return customers;
+}
+
+export async function createCustomer(
+  createCustomerData: CreateCustomerData
+): Promise<Customer> {
+  const { name, phoneNumber } = createCustomerData;
+  const [customer] = await db
+    .knex()('customers')
+    .insert({
+      name,
+      phone_number: phoneNumber,
+      created_at: new Date(),
+      updated_at: new Date()
+    })
+    .returning('*');
+
+  return {
+    id: customer.id,
+    name: customer.name,
+    phoneNumber: customer.phone_number,
+    isActive: customer.isActive
+  };
 }
