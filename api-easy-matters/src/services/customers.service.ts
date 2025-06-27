@@ -51,14 +51,13 @@ export async function getCustomer(id: number): Promise<Customer> {
 
   if (!customerRaw) {
     throw new Error('Customer not found');
-  } else {
-    return {
-      id: customerRaw.id,
-      name: customerRaw.name,
-      phoneNumber: customerRaw.phone_number,
-      isActive: customerRaw.is_active
-    };
   }
+  return {
+    id: customerRaw.id,
+    name: customerRaw.name,
+    phoneNumber: customerRaw.phone_number,
+    isActive: customerRaw.is_active
+  };
 }
 
 // Update a single customer
@@ -80,14 +79,13 @@ export async function updateCustomer(
   //TODO handle specific case where customer id doesn't exist
   if (!customerRaw) {
     throw new Error('Error updating customer');
-  } else {
-    return {
-      id: customerRaw.id,
-      name: customerRaw.name,
-      phoneNumber: customerRaw.phone_number,
-      isActive: customerRaw.is_active
-    };
   }
+  return {
+    id: customerRaw.id,
+    name: customerRaw.name,
+    phoneNumber: customerRaw.phone_number,
+    isActive: customerRaw.is_active
+  };
 }
 
 // Delete a customer
@@ -105,12 +103,11 @@ export async function deleteCustomer(id: number): Promise<Customer> {
   //TODO handle specific case where customer id doesn't exist
   if (!customerRaw) {
     throw new Error('Error deleting customer');
-  } else {
-    return {
-      id: customerRaw.id,
-      name: customerRaw.name,
-      phoneNumber: customerRaw.phone_number,
-      isActive: customerRaw.is_active
-    };
   }
+  return {
+    id: customerRaw.id,
+    name: customerRaw.name,
+    phoneNumber: customerRaw.phone_number,
+    isActive: customerRaw.is_active
+  };
 }

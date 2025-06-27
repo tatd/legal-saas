@@ -96,10 +96,10 @@ app.get('/api/customers/:id', authenticateToken, async (req, res) => {
   } catch (error) {
     if (error instanceof Error && error.message === 'Customer not found') {
       res.status(404).json({ error: 'Customer not found' });
-    } else {
-      console.error('Error fetching customer:', error);
-      res.status(500).json({ error: 'Failed to fetch customer' });
+      return;
     }
+    console.error('Error fetching customer:', error);
+    res.status(500).json({ error: 'Failed to fetch customer' });
   }
 });
 
@@ -123,10 +123,10 @@ app.put('/api/customers/:id', authenticateToken, async (req, res) => {
   } catch (error) {
     if (error instanceof Error && error.message === 'Error updating customer') {
       res.status(400).json({ error: 'Error updating customer' });
-    } else {
-      console.error('Error updating customer:', error);
-      res.status(500).json({ error: 'Failed to update customer' });
+      return;
     }
+    console.error('Error updating customer:', error);
+    res.status(500).json({ error: 'Failed to update customer' });
   }
 });
 
@@ -144,10 +144,10 @@ app.delete('/api/customers/:id', authenticateToken, async (req, res) => {
   } catch (error) {
     if (error instanceof Error && error.message === 'Error deleting customer') {
       res.status(400).json({ error: 'Error deleting customer' });
-    } else {
-      console.error('Error deleting customer:', error);
-      res.status(500).json({ error: 'Failed to delete customer' });
+      return;
     }
+    console.error('Error deleting customer:', error);
+    res.status(500).json({ error: 'Failed to delete customer' });
   }
 });
 
@@ -214,6 +214,51 @@ app.get('/api/customers/:id/matters', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch matters' });
   }
 });
+
+// Get a single matter
+app.get(
+  '/api/customers/:customerId/matters/:matterId',
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const customerId = +req.params.customerId;
+      const matterId = +req.params.matterId;
+
+      // Validate IDs
+      if (isNaN(customerId) || customerId <= 0) {
+        res.status(400).json({ error: 'Invalid customer ID' });
+        return;
+      }
+
+      if (isNaN(matterId) || matterId <= 0) {
+        res.status(400).json({ error: 'Invalid matter ID' });
+        return;
+      }
+
+      // Get the matter
+      const matter = await mattersService.getMatter(matterId);
+
+      // Verify the matter belongs to the customer
+      if (matter.customerId !== customerId) {
+        res.status(404).json({ error: 'Matter not found for this customer' });
+        return;
+      }
+
+      res.json(matter);
+    } catch (error) {
+      console.error('Error fetching matter:', error);
+
+      if (error instanceof Error) {
+        if (error.message.includes('Matter not found')) {
+          res.status(404).json({ error: 'Matter not found' });
+          return;
+        }
+      }
+
+      res.status(500).json({ error: 'Failed to fetch matter' });
+    }
+  }
+);
 
 // Get all users
 app.get('/api/users', async (req: Request, res: Response) => {
