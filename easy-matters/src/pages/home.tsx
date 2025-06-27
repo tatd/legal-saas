@@ -1,3 +1,4 @@
+import { CustomersList } from '@/components/customers-list';
 import { useGetMeQuery, type User } from '@/services/authApi';
 
 type ApiResponse = {
@@ -16,13 +17,18 @@ export function Home() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Welcome, {user.firmName}!</h1>
-      <p className="text-gray-600">You are now logged in to your account.</p>
-      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-        <h2 className="font-semibold">User Details:</h2>
-        <p>Email: {user.email}</p>
-        <p>User ID: {user.id}</p>
+      <div className="text-2xl font-bold">Welcome, {user.firmName}!</div>
+      <div className="text-gray-600">
+        You are now logged in to your account.
       </div>
+      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+        <div className="font-semibold">User Details:</div>
+        <div>Email: {user.email}</div>
+        <div>User ID: {user.id}</div>
+      </div>
+      <hr />
+      <div className="text-2xl font-bold">Customers</div>
+      <CustomersList />
     </div>
   );
 }
