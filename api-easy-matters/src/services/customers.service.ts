@@ -25,7 +25,7 @@ export async function createCustomer(
   createCustomerData: CreateCustomerData
 ): Promise<Customer> {
   const { name, phoneNumber } = createCustomerData;
-  const [customer] = await db
+  const [customerRaw] = await db
     .knex()('customers')
     .insert({
       name,
@@ -36,10 +36,10 @@ export async function createCustomer(
     .returning('*');
 
   return {
-    id: customer.id,
-    name: customer.name,
-    phoneNumber: customer.phone_number,
-    isActive: customer.isActive
+    id: customerRaw.id,
+    name: customerRaw.name,
+    phoneNumber: customerRaw.phone_number,
+    isActive: customerRaw.isActive
   };
 }
 
@@ -59,6 +59,35 @@ export async function getCustomer(id: number): Promise<Customer> {
       name: customerRaw.name,
       phoneNumber: customerRaw.phone_number,
       isActive: customerRaw.is_active
+    };
+  }
+}
+
+// Update a single customer
+export async function updateCustomer(
+  id: number,
+  updateCustomerData: Customer
+): Promise<Customer> {
+  const [customerRaw] = await db
+    .knex()('customers')
+    .update({
+      name: updateCustomerData.name,
+      phone_number: updateCustomerData.phoneNumber,
+      is_active: updateCustomerData.isActive,
+      updated_at: new Date()
+    })
+    .where({ id })
+    .returning('*');
+
+  //TODO handle specific case where customer id doesn't exist
+  if (!customerRaw) {
+    throw new Error('Customer not found');
+  } else {
+    return {
+      id: customerRaw.id,
+      name: customerRaw.name,
+      phoneNumber: customerRaw.phone_number,
+      isActive: customerRaw.isActive
     };
   }
 }
