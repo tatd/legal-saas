@@ -43,3 +43,24 @@ export async function getMatters(customerId: number): Promise<Matter[]> {
   }
   return matters;
 }
+
+// Get a single matter for a customer
+export async function getMatter(id: number): Promise<Matter> {
+  const matterRaw = await db
+    .knex()('matters')
+    .select('id', 'name', 'description', 'customer_id', 'created_at')
+    .where({ id })
+    .first();
+
+  if (!matterRaw) {
+    throw new Error('Matter not found');
+  }
+
+  return {
+    id: matterRaw.id,
+    name: matterRaw.name,
+    description: matterRaw.description,
+    customerId: matterRaw.customer_id,
+    createdAt: matterRaw.created_at
+  };
+}
