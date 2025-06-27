@@ -9,3 +9,15 @@ export type CreateUserData = {
   firmName: string;
   password: string;
 };
+
+export type CreateCustomerData = {
+  name: string;
+  phoneNumber: string;
+};
+
+export type Customer = {
+  id: number;
+  name: string;
+  phoneNumber: string;
+  isActive: boolean;
+};

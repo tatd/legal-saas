@@ -19,13 +19,14 @@ export type User = {
 
 // Insert user into the db
 export async function createUser(
-  createUserInput: CreateUserData
+  createUserData: CreateUserData
 ): Promise<User> {
-  const { email, firmName, password } = createUserInput;
+  const { email, firmName, password } = createUserData;
   const saltRounds = 10;
   const passwordHash = await bcrypt.hash(password, saltRounds);
 
-  const [user] = await db.knex()('users')
+  const [user] = await db
+    .knex()('users')
     .insert({
       email,
       firm_name: firmName,
@@ -33,7 +34,7 @@ export async function createUser(
       created_at: new Date(),
       updated_at: new Date()
     })
-    .returning(['id', 'email', 'firm_name', 'created_at', 'updated_at']);
+    .returning(['id', 'email', 'firm_name']);
 
   return {
     id: user.id,
@@ -50,7 +51,8 @@ export async function login(
   password: string
 ): Promise<{ token: string; user: Omit<User, 'password'> }> {
   // Find user by email and firm name
-  const user = await db.knex()('users')
+  const user = await db
+    .knex()('users')
     .where({
       email
     })
@@ -133,7 +135,9 @@ export function validateToken(token: string): User {
   }
 }
 
-export async function findUserByEmail(email: string): Promise<User | undefined> {
+export async function findUserByEmail(
+  email: string
+): Promise<User | undefined> {
   return db.knex()('users').where({ email }).select('*').first();
 }
 
