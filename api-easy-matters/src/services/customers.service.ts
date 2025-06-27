@@ -6,7 +6,8 @@ export async function getCustomers(): Promise<Customer[]> {
   const customersRaw = await db
     .knex()('customers')
     .select('id', 'name', 'phone_number', 'is_active')
-    .orderBy('is_active', 'name');
+    .orderBy('is_active', 'desc')
+    .orderBy('name');
 
   const customers: Customer[] = [];
   for (let raw of customersRaw) {
@@ -14,7 +15,7 @@ export async function getCustomers(): Promise<Customer[]> {
       id: raw.id,
       name: raw.name,
       phoneNumber: raw.phone_number,
-      isActive: raw.isActive
+      isActive: raw.is_active
     });
   }
   return customers;
