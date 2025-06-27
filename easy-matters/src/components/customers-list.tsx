@@ -125,7 +125,7 @@ function CreateCustomerForm() {
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
           <div className="block text-sm font-medium text-gray-700 mb-1">
-            Name *
+            Name <span className="text-red-500">*</span>
           </div>
           <Input
             type="text"
@@ -139,7 +139,7 @@ function CreateCustomerForm() {
         </div>
         <div>
           <div className="block text-sm font-medium text-gray-700 mb-1">
-            Phone Number *
+            Phone Number <span className="text-red-500">*</span>
           </div>
           <Input
             type="text"
@@ -189,7 +189,7 @@ function CustomerItem({ customer }: { customer: Customer }) {
           </div>
         </AccordionTrigger>
         <AccordionContent className="px-4 pb-3 pt-0">
-          <MattersList matters={matters || []} />
+          <MattersList matters={matters || []} customerId={customer.id} />
         </AccordionContent>
       </AccordionItem>
     </Accordion>
