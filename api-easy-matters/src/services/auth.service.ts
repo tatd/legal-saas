@@ -51,12 +51,7 @@ export async function login(
   password: string
 ): Promise<{ token: string; user: Omit<User, 'password'> }> {
   // Find user by email and firm name
-  const user = await db
-    .knex()('users')
-    .where({
-      email
-    })
-    .first();
+  const user = await db.knex()('users').where({ email }).first();
 
   if (!user) {
     throw new Error('Invalid email or firm name');
@@ -81,8 +76,7 @@ export async function login(
     { expiresIn: '24h' }
   );
 
-  // 4. Return token and user info (without password)
-  // const { password_hash, ...userWithoutPassword } = user;
+  // Return token and user info
   return {
     token,
     user: {
@@ -100,7 +94,7 @@ export function validateToken(token: string): User {
   }
 
   try {
-    // Remove 'Bearer ' prefix if present
+    // Handle 'Bearer ' prefix if present
     const tokenValue = token.startsWith('Bearer ')
       ? token.split(' ')[1]
       : token;
@@ -116,7 +110,7 @@ export function validateToken(token: string): User {
       exp: number;
     };
 
-    // Return the user data without the JWT payload metadata
+    // Return the user data
     return {
       id: decoded.userId,
       email: decoded.email,

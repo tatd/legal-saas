@@ -16,6 +16,7 @@ app.get('/', (req, res) => {
 });
 
 // Create a new user
+// TODO add try/catch and error handling
 app.post('/api/auth/signup', async (req: Request, res: Response) => {
   const data: CreateUserData = req.body;
   const user = await authService.createUser(data);
@@ -77,6 +78,27 @@ app.post('/api/customers', authenticateToken, async (req, res) => {
   const data: CreateCustomerData = req.body;
   const customer = await customersService.createCustomer(data);
   res.status(201).json(customer);
+});
+
+// Get a single customer by id
+app.get('/api/customers/:id', authenticateToken, async (req, res) => {
+  try {
+    const id = +req.params.id;
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'Invalid customer ID' });
+      return;
+    }
+
+    const customer = await customersService.getCustomer(id);
+    res.json(customer);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Customer not found') {
+      res.status(404).json({ error: 'Customer not found' });
+    } else {
+      console.error('Error fetching customer:', error);
+      res.status(500).json({ error: 'Failed to fetch customer' });
+    }
+  }
 });
 
 // Get all users

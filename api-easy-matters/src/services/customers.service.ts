@@ -1,10 +1,12 @@
 import db from 'db';
 import { CreateCustomerData, Customer } from 'types';
 
+// Get all customers
 export async function getCustomers(): Promise<Customer[]> {
   const customersRaw = await db
     .knex()('customers')
-    .select('name', 'phone_number', 'is_active');
+    .select('id', 'name', 'phone_number', 'is_active')
+    .orderBy('is_active', 'name');
 
   const customers: Customer[] = [];
   for (let raw of customersRaw) {
@@ -18,6 +20,7 @@ export async function getCustomers(): Promise<Customer[]> {
   return customers;
 }
 
+// Create customer
 export async function createCustomer(
   createCustomerData: CreateCustomerData
 ): Promise<Customer> {
@@ -38,4 +41,24 @@ export async function createCustomer(
     phoneNumber: customer.phone_number,
     isActive: customer.isActive
   };
+}
+
+// Get a single customer
+export async function getCustomer(id: number): Promise<Customer> {
+  const customerRaw = await db
+    .knex()('customers')
+    .select('id', 'name', 'phone_number', 'is_active')
+    .where({ id })
+    .first();
+
+  if (!customerRaw) {
+    throw new Error('Customer not found');
+  } else {
+    return {
+      id: customerRaw.id,
+      name: customerRaw.name,
+      phoneNumber: customerRaw.phone_number,
+      isActive: customerRaw.is_active
+    };
+  }
 }
