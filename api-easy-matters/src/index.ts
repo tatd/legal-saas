@@ -2,8 +2,9 @@ import express, { Request, Response } from 'express';
 import db from './db';
 import * as authService from 'services/auth.service';
 import * as customersService from 'services/customers.service';
+import * as mattersService from 'services/matters.service';
 import { authenticateToken } from './middleware/auth.middleware';
-import { CreateCustomerData, CreateUserData } from 'types';
+import { CreateCustomerData, CreateUserData, CreateMatterData } from 'types';
 
 const PORT = process.env.PORT || 3001;
 
@@ -85,7 +86,7 @@ app.post('/api/customers', authenticateToken, async (req, res) => {
 app.get('/api/customers/:id', authenticateToken, async (req, res) => {
   try {
     const id = +req.params.id;
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       res.status(400).json({ error: 'Invalid customer ID' });
       return;
     }
@@ -106,7 +107,7 @@ app.get('/api/customers/:id', authenticateToken, async (req, res) => {
 app.put('/api/customers/:id', authenticateToken, async (req, res) => {
   try {
     const id = +req.params.id;
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       res.status(400).json({ error: 'Invalid customer ID' });
       return;
     }
@@ -133,7 +134,7 @@ app.put('/api/customers/:id', authenticateToken, async (req, res) => {
 app.delete('/api/customers/:id', authenticateToken, async (req, res) => {
   try {
     const id = +req.params.id;
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       res.status(400).json({ error: 'Invalid customer ID' });
       return;
     }
@@ -147,6 +148,50 @@ app.delete('/api/customers/:id', authenticateToken, async (req, res) => {
       console.error('Error deleting customer:', error);
       res.status(500).json({ error: 'Failed to delete customer' });
     }
+  }
+});
+
+// Create a matter for a customer
+app.post('/api/customers/:id/matters', authenticateToken, async (req, res) => {
+  try {
+    const id = +req.params.id;
+    if (isNaN(id) || id <= 0) {
+      res.status(400).json({ error: 'Invalid customer ID' });
+      return;
+    }
+
+    const { name, description } = req.body;
+
+    // Validate request body
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      res
+        .status(400)
+        .json({ error: 'Name is required and must be a non-empty string' });
+      return;
+    }
+
+    if (
+      !description ||
+      typeof description !== 'string' ||
+      description.trim().length === 0
+    ) {
+      res.status(400).json({
+        error: 'Description is required and must be a non-empty string'
+      });
+      return;
+    }
+
+    const createMatterData: CreateMatterData = {
+      name: name.trim(),
+      description: description.trim(),
+      customerId: id
+    };
+
+    const matter = await mattersService.createMatter(createMatterData);
+    res.status(201).json(matter);
+  } catch (error) {
+    console.error('Error creating matter:', error);
+    res.status(500).json({ error: 'Failed to create matter' });
   }
 });
 

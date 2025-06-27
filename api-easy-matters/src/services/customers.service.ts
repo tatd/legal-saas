@@ -29,9 +29,7 @@ export async function createCustomer(
     .knex()('customers')
     .insert({
       name,
-      phone_number: phoneNumber,
-      created_at: new Date(),
-      updated_at: new Date()
+      phone_number: phoneNumber
     })
     .returning('*');
 
