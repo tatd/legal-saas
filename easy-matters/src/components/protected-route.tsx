@@ -7,14 +7,17 @@ type ProtectedRouteProps = {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const location = useLocation();
-  const { data: user, isLoading } = useGetMeQuery();
+  const hasToken = !!localStorage.getItem('access_token');
+  const { isLoading, isError } = useGetMeQuery(undefined, {
+    skip: !hasToken
+  });
 
-  if (isLoading) {
-    return <div>Loading...</div>; // You can replace this with a proper loading spinner
+  if (isLoading && hasToken) {
+    return <div>Loading...</div>;
   }
 
-  if (!user) {
-    // Redirect to /login, but save the current location they were trying to go to
+  // If there's no token or there was an error, redirect to login
+  if (!hasToken || isError) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

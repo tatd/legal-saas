@@ -7,14 +7,10 @@ import type {
 
 // Types
 export interface Customer {
-  id: string;
+  id: number;
   name: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  createdAt: string;
-  updatedAt: string;
-  firmId: string;
+  phoneNumber: string;
+  isActive: boolean;
 }
 
 // Create base query with base URL
@@ -66,7 +62,7 @@ export const customersApi = createApi({
         url: `/${id}`,
         method: 'GET'
       }),
-      providesTags: (result, error, id) => [{ type: 'Customer', id }]
+      providesTags: (_result, _error, id) => [{ type: 'Customer', id }]
     }),
 
     // Create a new customer
@@ -92,7 +88,7 @@ export const customersApi = createApi({
         method: 'PUT',
         body: updates
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Customer', id }]
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Customer', id }]
     }),
 
     // Delete a customer
