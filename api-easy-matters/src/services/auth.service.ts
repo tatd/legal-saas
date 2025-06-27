@@ -1,6 +1,6 @@
-import { Knex } from 'knex';
 import * as bcrypt from 'bcrypt';
 import { CreateUserData } from 'types';
+import db from '../db';
 
 export type User = {
   id: number;
@@ -19,14 +19,13 @@ export type User = {
 
 // Insert user into the db
 export async function createUser(
-  db: Knex,
   createUserInput: CreateUserData
 ): Promise<User> {
   const { email, firmName, password } = createUserInput;
   const saltRounds = 10;
   const passwordHash = await bcrypt.hash(password, saltRounds);
 
-  const [user] = await db('users')
+  const [user] = await db.knex()('users')
     .insert({
       email,
       firm_name: firmName,
@@ -47,12 +46,11 @@ export async function createUser(
 // Verify password and hashed password
 // Return JWT token
 export async function login(
-  db: Knex,
   email: string,
   password: string
 ): Promise<{ token: string; user: Omit<User, 'password'> }> {
   // Find user by email and firm name
-  const user = await db('users')
+  const user = await db.knex()('users')
     .where({
       email
     })
@@ -135,11 +133,8 @@ export function validateToken(token: string): User {
   }
 }
 
-export async function findUserByEmail(
-  db: Knex,
-  email: string
-): Promise<User | undefined> {
-  return db('users').where({ email }).select('*').first();
+export async function findUserByEmail(email: string): Promise<User | undefined> {
+  return db.knex()('users').where({ email }).select('*').first();
 }
 
 export async function verifyPassword(
