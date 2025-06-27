@@ -1,5 +1,7 @@
 import express, { Request, Response } from 'express';
 import db from './db';
+import * as authService from 'services/auth.service';
+import { CreateUserData } from 'types';
 
 const PORT = process.env.PORT || 3001;
 
@@ -9,6 +11,13 @@ app.use(express.json());
 // Health check endpoint
 app.get('/', (req: Request, res: Response) => {
   res.status(200).json({ status: 'ok', message: 'Health check ok' });
+});
+
+// Create a new user
+app.post('/api/auth/signup', async (req: Request, res: Response) => {
+  const data: CreateUserData = req.body;
+  const user = await authService.createUser(db.knex(), data);
+  res.status(201).json(user);
 });
 
 // Get all users
