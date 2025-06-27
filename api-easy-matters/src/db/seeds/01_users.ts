@@ -5,6 +5,9 @@ export async function seed(knex: Knex): Promise<void> {
   // Deletes ALL existing entries
   await knex('users').del();
 
+  // Reset auto-increment counter
+  await knex.raw('ALTER SEQUENCE users_id_seq RESTART WITH 1');
+
   // Hash passwords
   const saltRounds = 10;
   const password1 = await bcrypt.hash('password1', saltRounds);
