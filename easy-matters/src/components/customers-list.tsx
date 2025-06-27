@@ -1,4 +1,8 @@
-import { useGetCustomersQuery, type Customer, useGetMattersQuery } from '@/services/customersApi';
+import {
+  useGetCustomersQuery,
+  type Customer,
+  useGetMattersQuery
+} from '@/services/customersApi';
 import {
   Accordion,
   AccordionContent,
@@ -24,6 +28,7 @@ import { useCreateCustomerMutation } from '@/services/customersApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MattersList } from './matters-list';
+import { DeleteCustomerButton } from './delete-customer-button';
 
 function CreateCustomerForm() {
   const [createCustomer, { isLoading }] = useCreateCustomerMutation();
@@ -183,12 +188,22 @@ function CustomerItem({ customer }: { customer: Customer }) {
                 {formatPhoneDisplay(customer.phoneNumber)}
               </div>
               <div className="text-sm text-gray-600">
-                Status: {customer.isActive ? 'Active' : 'Inactive'}
+                Status:{' '}
+                <div
+                  className={`text-${
+                    customer.isActive ? 'green-600' : 'red-600'
+                  }`}
+                >
+                  {customer.isActive ? 'Active' : 'Inactive'}
+                </div>
               </div>
             </div>
           </div>
         </AccordionTrigger>
         <AccordionContent className="px-4 pb-3 pt-0">
+          <div className="py-2">
+            <DeleteCustomerButton customer={customer} />
+          </div>
           <MattersList matters={matters || []} customerId={customer.id} />
         </AccordionContent>
       </AccordionItem>
