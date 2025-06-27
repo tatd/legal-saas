@@ -195,6 +195,26 @@ app.post('/api/customers/:id/matters', authenticateToken, async (req, res) => {
   }
 });
 
+// Get all matters for a customer
+app.get('/api/customers/:id/matters', authenticateToken, async (req, res) => {
+  try {
+    const customerId = +req.params.id;
+
+    // Validate customer ID
+    if (isNaN(customerId) || customerId <= 0) {
+      res.status(400).json({ error: 'Invalid customer ID' });
+      return;
+    }
+
+    // Get matters for the customer
+    const matters = await mattersService.getMatters(customerId);
+    res.json(matters);
+  } catch (error) {
+    console.error('Error fetching matters:', error);
+    res.status(500).json({ error: 'Failed to fetch matters' });
+  }
+});
+
 // Get all users
 app.get('/api/users', async (req: Request, res: Response) => {
   try {
