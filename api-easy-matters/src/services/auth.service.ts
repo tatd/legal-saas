@@ -49,14 +49,12 @@ export async function createUser(
 export async function login(
   db: Knex,
   email: string,
-  firmName: string,
   password: string
 ): Promise<{ token: string; user: Omit<User, 'password'> }> {
   // Find user by email and firm name
   const user = await db('users')
     .where({
-      email,
-      firm_name: firmName
+      email
     })
     .first();
 
@@ -93,6 +91,48 @@ export async function login(
       firmName: user.firm_name
     }
   };
+}
+
+// Validates token and returns user data
+export function validateToken(token: string): User {
+  if (!token) {
+    throw new Error('No token provided');
+  }
+
+  try {
+    // Remove 'Bearer ' prefix if present
+    const tokenValue = token.startsWith('Bearer ')
+      ? token.split(' ')[1]
+      : token;
+    const jwt = require('jsonwebtoken');
+    const secret = process.env.JWT_SECRET || 'secret-key';
+
+    // Verify and decode the token
+    const decoded = jwt.verify(tokenValue, secret) as {
+      userId: number;
+      email: string;
+      firmName: string;
+      iat: number;
+      exp: number;
+    };
+
+    // Return the user data without the JWT payload metadata
+    return {
+      id: decoded.userId,
+      email: decoded.email,
+      firmName: decoded.firmName
+    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      if (error.name === 'TokenExpiredError') {
+        throw new Error('Token has expired');
+      }
+      if (error.name === 'JsonWebTokenError') {
+        throw new Error('Invalid token');
+      }
+    }
+    throw new Error('Failed to authenticate token');
+  }
 }
 
 export async function findUserByEmail(

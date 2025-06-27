@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 
 // Health check endpoint
-app.get('/', (req: Request, res: Response) => {
+app.get('/', (res: Response) => {
   res.status(200).json({ status: 'ok', message: 'Health check ok' });
 });
 
@@ -20,24 +20,47 @@ app.post('/api/auth/signup', async (req: Request, res: Response) => {
   res.status(201).json(user);
 });
 
+// Login and get token
 app.post('/api/auth/login', async (req: Request, res: Response) => {
   try {
     const { email, firmName, password } = req.body;
-    const result = await authService.login(
-      db.knex(),
-      email,
-      firmName,
-      password
-    );
+    const result = await authService.login(db.knex(), email, password);
     res.json(result);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
     res.status(401).json({ error: 'Invalid credentials' });
   }
 });
 
-// Login and get token
-app.post('api/auth/login', async (req: Request, res: Response) => {});
+// Return authenticated user info
+app.get('/api/auth/me', (req: Request, res: Response): void => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      res.status(401).json({ error: 'No token provided' });
+      return;
+    }
+
+    const user = authService.validateToken(authHeader);
+    res.json({ user });
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Token has expired') {
+        res.status(401).json({ error: 'Token has expired' });
+        return;
+      }
+      if (error.message === 'Invalid token') {
+        res.status(401).json({ error: 'Invalid token' });
+        return;
+      }
+    }
+    console.error('Error in /api/auth/me:', error);
+    res.status(401).json({ error: 'Failed to authenticate' });
+  }
+});
+
+// Get list of customers
+// app.get('/api/customers')
 
 // Get all users
 app.get('/api/users', async (req: Request, res: Response) => {
@@ -47,15 +70,15 @@ app.get('/api/users', async (req: Request, res: Response) => {
       .select('id', 'email', 'firm_name', 'created_at')
       .from('users');
     res.json(users);
-  } catch (err) {
-    console.error('Error fetching users:', err);
+  } catch (error) {
+    console.error('Error fetching users:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
   }
 });
 
 // Error handling middleware
-app.use((err: Error, req: Request, res: Response) => {
-  console.error(err.stack);
+app.use((error: Error, req: Request, res: Response) => {
+  console.error(error.stack);
   res.status(500).json({ error: 'Unknown error' });
 });
 
@@ -66,8 +89,8 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
-  } catch (err) {
-    console.error('Failed to start server:', err);
+  } catch (error) {
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 }
