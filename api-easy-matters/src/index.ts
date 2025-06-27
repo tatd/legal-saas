@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import db from './db';
 import * as authService from 'services/auth.service';
 import * as customersService from 'services/customers.service';
+import { authenticateToken } from './middleware/auth.middleware';
 import { CreateUserData } from 'types';
 
 const PORT = process.env.PORT || 3001;
@@ -61,7 +62,7 @@ app.get('/api/auth/me', (req: Request, res: Response): void => {
 });
 
 // Get list of customers
-app.get('/api/customers', async (require, res) => {
+app.get('/api/customers', authenticateToken, async (req: Request, res: Response) => {
   try {
     const customers = await customersService.getCustomers();
     res.json(customers);
