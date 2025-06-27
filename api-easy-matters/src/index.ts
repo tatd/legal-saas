@@ -76,6 +76,7 @@ app.get('/api/customers', authenticateToken, async (req, res) => {
 // Create customer
 app.post('/api/customers', authenticateToken, async (req, res) => {
   const data: CreateCustomerData = req.body;
+  // TODO validate body data
   const customer = await customersService.createCustomer(data);
   res.status(201).json(customer);
 });
@@ -97,6 +98,35 @@ app.get('/api/customers/:id', authenticateToken, async (req, res) => {
     } else {
       console.error('Error fetching customer:', error);
       res.status(500).json({ error: 'Failed to fetch customer' });
+    }
+  }
+});
+
+// Update a single customer
+app.put('/api/customers/:id', authenticateToken, async (req, res) => {
+  try {
+    const id = +req.params.id;
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'Invalid customer ID' });
+      return;
+    }
+
+    const updateData = req.body;
+    if (!updateData || Object.keys(updateData).length === 0) {
+      res.status(400).json({ error: 'No update data provided' });
+      return;
+    }
+
+    const customer = await customersService.updateCustomer(id, updateData);
+    res.json(customer);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Customer not found') {
+      res.status(404).json({ error: 'Customer not found' });
+    } else if (error instanceof Error && error.message === 'Error updating customer') {
+      res.status(400).json({ error: 'Error updating customer' });
+    } else {
+      console.error('Error updating customer:', error);
+      res.status(500).json({ error: 'Failed to update customer' });
     }
   }
 });
