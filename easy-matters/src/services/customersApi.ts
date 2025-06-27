@@ -67,7 +67,13 @@ export const customersApi = createApi({
         url: '/',
         method: 'GET'
       }),
-      providesTags: ['Customer']
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'Customer' as const, id })),
+              { type: 'Customer', id: 'LIST' }
+            ]
+          : [{ type: 'Customer', id: 'LIST' }]
     }),
 
     // Get single customer by ID
@@ -95,14 +101,23 @@ export const customersApi = createApi({
     // Update a customer
     updateCustomer: builder.mutation<
       Customer,
-      Partial<Customer> & { id: string }
+      { id: string } & Partial<Customer>
     >({
       query: ({ id, ...updates }) => ({
         url: `/${id}`,
         method: 'PUT',
         body: updates
       }),
-      invalidatesTags: (_result, _error, { id }) => [{ type: 'Customer', id }]
+      invalidatesTags: (_result, _error, arg) => {
+        const tags: Array<{ type: 'Customer'; id: string | number }> = [
+          { type: 'Customer', id: arg.id }
+        ];
+        // If isActive is being updated, also invalidate the list
+        if ('isActive' in arg) {
+          tags.push({ type: 'Customer', id: 'LIST' });
+        }
+        return tags;
+      }
     }),
 
     // Delete a customer
