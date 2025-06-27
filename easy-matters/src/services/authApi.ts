@@ -75,12 +75,12 @@ export const authApi = createApi({
       })
     }),
 
-    register: builder.mutation<
+    signUp: builder.mutation<
       AuthResponse,
-      { email: string; password: string; name: string }
+      { email: string; password: string; firmName: string }
     >({
       query: (userData) => ({
-        url: 'register',
+        url: 'signup',
         method: 'POST',
         body: userData
       })
@@ -95,9 +95,8 @@ export const authApi = createApi({
   })
 });
 
-export const { 
-  useLoginMutation, 
-  useRegisterMutation, 
-  useGetMeQuery,
-  useLazyGetMeQuery 
+export const {
+  useLoginMutation,
+  useSignUpMutation,
+  useGetMeQuery
 } = authApi;

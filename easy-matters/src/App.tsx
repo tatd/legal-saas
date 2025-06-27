@@ -54,7 +54,7 @@ function App() {
               variant="outline"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="min-w-[100px]"
+              className="min-w-[100px] cursor-pointer"
             >
               {isLoggingOut ? 'Logging out...' : 'Logout'}
             </Button>
