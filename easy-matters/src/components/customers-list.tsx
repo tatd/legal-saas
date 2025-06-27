@@ -1,4 +1,10 @@
-import { useGetCustomersQuery, type Customer } from '@/services/customersApi';
+import { useGetCustomersQuery, type Customer, useGetMattersQuery } from '@/services/customersApi';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '@/components/ui/accordion';
 
 // Helper function to display phone number in the list
 function formatPhoneDisplay(phoneNumber: string): string {
@@ -17,6 +23,7 @@ import { useState } from 'react';
 import { useCreateCustomerMutation } from '@/services/customersApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { MattersList } from './matters-list';
 
 function CreateCustomerForm() {
   const [createCustomer, { isLoading }] = useCreateCustomerMutation();
@@ -160,16 +167,32 @@ function CreateCustomerForm() {
 }
 
 function CustomerItem({ customer }: { customer: Customer }) {
+  const { data: matters } = useGetMattersQuery(customer.id);
+
   return (
-    <div className="p-4 border rounded-lg mb-2">
-      <div className="font-medium">{customer.name}</div>
-      <div className="text-sm text-gray-600">
-        {formatPhoneDisplay(customer.phoneNumber)}
-      </div>
-      <div className="text-sm text-gray-600">
-        {customer.isActive ? 'Active' : 'Inactive'}
-      </div>
-    </div>
+    <Accordion type="single" collapsible className="w-full">
+      <AccordionItem
+        value={customer.id.toString()}
+        className="border rounded-lg mb-2 overflow-hidden"
+      >
+        <AccordionTrigger className="px-4 py-3 hover:no-underline [&[data-state=open]>svg]:rotate-180 cursor-pointer">
+          <div className="flex items-center justify-between w-full pr-2">
+            <div className="text-left">
+              <div className="font-medium">{customer.name}</div>
+              <div className="text-sm text-gray-600">
+                {formatPhoneDisplay(customer.phoneNumber)}
+              </div>
+              <div className="text-sm text-gray-600">
+                Status: {customer.isActive ? 'Active' : 'Inactive'}
+              </div>
+            </div>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="px-4 pb-3 pt-0">
+          <MattersList matters={matters || []} />
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 }
 

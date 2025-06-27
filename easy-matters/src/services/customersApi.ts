@@ -6,12 +6,26 @@ import type {
 } from '@reduxjs/toolkit/query';
 
 // Types
-export interface Customer {
+export type Matter = {
+  id: number;
+  name: string;
+  description: string;
+  customerId: number;
+  createdAt: string;
+};
+
+export type CreateMatterData = {
+  name: string;
+  description: string;
+  customerId: number;
+};
+
+export type Customer = {
   id: number;
   name: string;
   phoneNumber: string;
   isActive: boolean;
-}
+};
 
 // Create base query with base URL
 const baseQuery = fetchBaseQuery({
@@ -45,7 +59,7 @@ const baseQueryWithReauth: BaseQueryFn<
 export const customersApi = createApi({
   reducerPath: 'customersApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Customer'],
+  tagTypes: ['Customer', 'Matters', 'Matter'],
   endpoints: (builder) => ({
     // Get all customers
     getCustomers: builder.query<Customer[], void>({
@@ -98,6 +112,45 @@ export const customersApi = createApi({
         method: 'DELETE'
       }),
       invalidatesTags: ['Customer']
+    }),
+
+    // Create a new matter for a customer
+    createMatter: builder.mutation<Matter, CreateMatterData>({
+      query: (matterData) => ({
+        url: `/${matterData.customerId}/matters`,
+        method: 'POST',
+        body: matterData
+      }),
+      invalidatesTags: (_result, _error, { customerId }) => [
+        { type: 'Customer', id: customerId },
+        { type: 'Matters', id: customerId }
+      ]
+    }),
+
+    // Get all matters for a customer
+    getMatters: builder.query<Matter[], number>({
+      query: (customerId) => ({
+        url: `/${customerId}/matters`,
+        method: 'GET'
+      }),
+      providesTags: (_result, _error, customerId) => [
+        { type: 'Matters', id: customerId }
+      ]
+    }),
+
+    // Get a single matter for a customer
+    getMatterById: builder.query<
+      Matter,
+      { customerId: number; matterId: number }
+    >({
+      query: ({ customerId, matterId }) => ({
+        url: `/${customerId}/matters/${matterId}`,
+        method: 'GET'
+      }),
+      providesTags: (_result, _error, { customerId, matterId }) => [
+        { type: 'Matters', id: customerId },
+        { type: 'Matter', id: matterId }
+      ]
     })
   })
 });
@@ -107,5 +160,8 @@ export const {
   useGetCustomerByIdQuery,
   useCreateCustomerMutation,
   useUpdateCustomerMutation,
-  useDeleteCustomerMutation
+  useDeleteCustomerMutation,
+  useCreateMatterMutation,
+  useGetMattersQuery,
+  useGetMatterByIdQuery
 } = customersApi;
