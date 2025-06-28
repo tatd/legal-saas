@@ -1,0 +1,235 @@
+# Remove and deploy container
+
+docker-compose down -v && docker-compose up -d --build
+
+# Deploy container
+
+docker-compose up -d --build
+
+# Remove containers
+
+docker-compose down -v
+
+# Get ids of containers
+
+docker ps
+
+# Access container (for example postgres, id is an example)
+
+docker exec -it 80b8f9205127 /bin/sh
+
+#Once in container, access postgres
+psql -U postgres postgres
+
+# Reset db
+
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+
+# Run data migration
+
+npm run migrate
+
+# Run data seed
+
+npm run seed:run
+
+## curl commands to test API
+
+# Create new user
+
+curl -X POST http://localhost:3001/api/auth/signup \
+ -H "Content-Type: application/json" \
+ -d '{
+"email": "nathan@sample.com",
+"firmName": "Nathan Firm",
+"password": "password3"
+}'
+
+# Login, get access_token
+
+curl -X POST http://localhost:3001/api/auth/login \
+ -H "Content-Type: application/json" \
+ -d '{
+"email": "dennis@sample.com",
+"firmName": "Dennis Firm",
+"password": "password1"
+}'
+
+# Incorrect login
+
+curl -X POST http://localhost:3001/api/auth/login \
+ -H "Content-Type: application/json" \
+ -d '{
+"email": "dennis@sample.com",
+"firmName": "Dennis Firm",
+"password": "incorrectpw"
+}'
+
+# Login and then GET auth/me
+
+# First, get a access_token from the login endpoint
+
+TOKEN=$(curl -X POST http://localhost:3001/api/auth/login \
+ -H "Content-Type: application/json" \
+ -d '{"email":"dennis@sample.com","firmName":"Dennis Law","password":"password1"}' \
+ | jq -r '.access_token')
+
+# Then use the access_token to access the /me endpoint
+
+curl -H "Authorization: $TOKEN" http://localhost:3001/api/auth/me
+
+#Login and then GET /customers
+
+# First, get a access_token from the login endpoint
+
+TOKEN=$(curl -X POST http://localhost:3001/api/auth/login \
+ -H "Content-Type: application/json" \
+ -d '{"email":"dennis@sample.com","firmName":"Dennis Law","password":"password1"}' \
+ | jq -r '.access_token')
+
+# Then use the access_token to access the /customers endpoint
+
+curl -H "Authorization: $TOKEN" http://localhost:3001/api/customers
+
+# Login and then POST /customers
+
+# First, get a access_token from the login endpoint
+
+TOKEN=$(curl -X POST http://localhost:3001/api/auth/login \
+ -H "Content-Type: application/json" \
+ -d '{"email":"dennis@sample.com","firmName":"Dennis Law","password":"password1"}' \
+ | jq -r '.access_token')
+
+# Then use the access_token to POST to the /customers endpoint
+
+curl -X POST http://localhost:3001/api/customers \
+ -H "Content-Type: application/json" \
+ -H "Authorization: $TOKEN" \
+ -d '{
+"name": "Bumi",
+"phoneNumber": "3333333333"
+}'
+
+#Login and then GET /customers/${ID}
+
+# First, get a access_token from the login endpoint
+
+TOKEN=$(curl -X POST http://localhost:3001/api/auth/login \
+ -H "Content-Type: application/json" \
+ -d '{"email":"dennis@sample.com","firmName":"Dennis Law","password":"password1"}' \
+ | jq -r '.access_token')
+
+# Then use the access_token to access the /customer/:id endpoint
+
+curl -H "Authorization: $TOKEN" http://localhost:3001/api/customers/1
+
+#Login and then PUTs /customers/${ID}
+
+# First, get a access_token from the login endpoint
+
+TOKEN=$(curl -X POST http://localhost:3001/api/auth/login \
+ -H "Content-Type: application/json" \
+ -d '{"email":"dennis@sample.com","firmName":"Dennis Law","password":"password1"}' \
+ | jq -r '.access_token')
+
+# Then use the access_token to access PUT the /customer/:id endpoint
+
+curl -X PUT http://localhost:3001/api/customers/1 \
+ -H "Content-Type: application/json" \
+ -H "Authorization: $TOKEN" \
+ -d '{
+"name": "Abby Updated",
+"phoneNumber": "8888888888",
+"isActive": true
+}'
+
+#Login and then DELETE /customers/${ID}
+
+# First, get a access_token from the login endpoint
+
+TOKEN=$(curl -X POST http://localhost:3001/api/auth/login \
+ -H "Content-Type: application/json" \
+ -d '{"email":"dennis@sample.com","firmName":"Dennis Law","password":"password1"}' \
+ | jq -r '.access_token')
+
+# Then use the access_token to access the DELETE /customer/:id endpoint
+
+curl -X DELETE http://localhost:3001/api/customers/1 \
+ -H "Content-Type: application/json" \
+ -H "Authorization: $TOKEN"
+
+# Login and then POST /customers/:id/matters
+
+# First, get a access_token from the login endpoint
+
+TOKEN=$(curl -X POST http://localhost:3001/api/auth/login \
+ -H "Content-Type: application/json" \
+ -d '{"email":"dennis@sample.com","firmName":"Dennis Law","password":"password1"}' \
+ | jq -r '.access_token')
+
+# Then use the access_token to POST to the /customers/:id/matters endpoint
+
+curl -X POST http://localhost:3001/api/customers/1/matters \
+ -H "Content-Type: application/json" \
+ -H "Authorization: $TOKEN" \
+ -d '{
+"name": "Abby vs fireworks",
+"description": "Abby is scared of the fireworks",
+"customerId": 1
+}'
+
+# Login and then GET /customers/:id/matters
+
+# First, get a access_token from the login endpoint
+
+TOKEN=$(curl -X POST http://localhost:3001/api/auth/login \
+ -H "Content-Type: application/json" \
+ -d '{"email":"dennis@sample.com","firmName":"Dennis Law","password":"password1"}' \
+ | jq -r '.access_token')
+
+# Then use the access_token to GET the /customers/:id/matters endpoint
+
+curl -X GET http://localhost:3001/api/customers/1/matters \
+ -H "Content-Type: application/json" \
+ -H "Authorization: $TOKEN"
+
+# Then use the access_token to GET the /customers/:id/matters endpoint for id = 2
+
+curl -X GET http://localhost:3001/api/customers/2/matters \
+ -H "Content-Type: application/json" \
+ -H "Authorization: $TOKEN"
+
+# Login and then GET /customers/:customerId/matters/:matterId
+
+# First, get a access_token from the login endpoint
+
+TOKEN=$(curl -X POST http://localhost:3001/api/auth/login \
+ -H "Content-Type: application/json" \
+ -d '{"email":"dennis@sample.com","firmName":"Dennis Law","password":"password1"}' \
+ | jq -r '.access_token')
+
+# Then use the access_token to GET the /customers/:id/matters endpoint
+
+curl -X GET http://localhost:3001/api/customers/1/matters/1 \
+ -H "Content-Type: application/json" \
+ -H "Authorization: $TOKEN"
+
+#Customer id param doesn't match customer id on matter
+
+# Login and then GET /customers/:customerId/matters/:matterId
+
+# First, get a access_token from the login endpoint
+
+TOKEN=$(curl -X POST http://localhost:3001/api/auth/login \
+ -H "Content-Type: application/json" \
+ -d '{"email":"dennis@sample.com","firmName":"Dennis Law","password":"password1"}' \
+ | jq -r '.access_token')
+
+# Then use the access_token to GET the /customers/:id/matters endpoint
+
+curl -X GET http://localhost:3001/api/customers/1/matters/3 \
+ -H "Content-Type: application/json" \
+ -H "Authorization: $TOKEN"
