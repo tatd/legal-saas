@@ -88,3 +88,16 @@ See list of helpful commands and curl commands to test the API in `commands` fil
 ## API Documentation
 
 For detailed API documentation, see [API.md](API.md)
+
+## Things to improve with more time
+
+- nest matter routes under customer routes so they're not all in the same router in the API
+- refactor error messages so they're not magic strings
+- add more specific errors, like when foreign key doesn't exist (customer id when creating matter)
+- add tests (e2e, API, unit)
+- better logging, include ids for tracing
+- add separate pages in the frontend for better UX
+
+### Development notes
+
+While developing, I used youtube tutorials, docs, and an AI editors as tools. For the frontend, I am unfamiliar with tailwind, so I chose to use shadcn ui components. The AI editor was especially helpful with scaffolding and setting up tool integrationss, debugging errors, CSS, and writing documentation. If I relied on AI, I tried my best to verify its truthfulness and how it works.
