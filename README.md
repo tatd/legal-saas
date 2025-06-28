@@ -68,7 +68,13 @@ docker compose up -d --build
 
 ### Stop the containers
 
-From each project directory mentioned above:
+From the root directory:
+
+```bash
+./down.sh
+```
+
+Or from each project directory mentioned above:
 
 ```bash
 docker compose down -v
