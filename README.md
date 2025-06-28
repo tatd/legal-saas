@@ -19,6 +19,10 @@ chmod +x deploy.sh down.sh
 ./deploy.sh
 ```
 
+The API is available at http://localhost:3001/
+
+The frontend app is available at http://localhost:5173/
+
 ## Manual Start
 
 If the script isn't working, these are the manual steps.
@@ -54,8 +58,6 @@ npm run migrate
 npm run seed:run
 ```
 
-The API is available at `http://localhost:3001/`
-
 ### From the directory `easy-matters/`:
 
 - start the container
@@ -63,8 +65,6 @@ The API is available at `http://localhost:3001/`
 ```bash
 docker compose up -d --build
 ```
-
-The frontend app is available at `http://localhost:5173/`
 
 ### Stop the containers
 
