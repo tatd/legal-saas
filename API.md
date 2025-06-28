@@ -232,31 +232,6 @@
   }
   ```
 
-### Update Matter
-
-- **URL**: `/api/matters/:id`
-- **Method**: `PUT`
-- **URL Parameters**:
-  - `id` (required): Matter ID
-- **Authentication**: Required (JWT in Authorization header)
-- **Request Body**:
-  ```json
-  {
-    "name": "Updated Matter Name",
-    "description": "Updated description"
-  }
-  ```
-- **Success Response**: `200 OK`
-  ```json
-  {
-    "id": 1,
-    "name": "Updated Matter Name",
-    "description": "Updated description",
-    "customerId": 1,
-    "createdAt": "2023-01-01T00:00:00.000Z"
-  }
-  ```
-
 ## Authentication
 
 All endpoints except `/api/auth/signup` and `/api/auth/login` require authentication. Include the JWT token in the `Authorization` header:
