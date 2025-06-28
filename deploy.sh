@@ -9,7 +9,6 @@ echo "Starting deployment..."
 echo "Deploying API service..."
 cd "./api-easy-matters"
 cp .env.example .env
-nvm use
 npm install
 docker compose up -d --build
 
