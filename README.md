@@ -97,6 +97,7 @@ For detailed API documentation, see [API.md](API.md)
 - add tests (e2e, API, unit)
 - better logging, include ids for tracing
 - add separate pages in the frontend for better UX
+- overall I was rushing and didn't put as much time in the frontend, so with more time I would put some more though into the design.
 
 ### Development notes
 
