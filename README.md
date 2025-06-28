@@ -89,7 +89,7 @@ The db is seeded with logins:
 
 ### curl commands to test API
 
-See list of helpful commands and curl commands to test the API in [commands](commands) file.
+See list of helpful commands and curl commands to test the API in the [commands](commands) file.
 
 ## API Documentation
 
