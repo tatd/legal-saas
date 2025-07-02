@@ -1,4 +1,6 @@
 #!/bin/bash
+export NVM_DIR=$HOME/.nvm;
+source $NVM_DIR/nvm.sh;
 
 # Exit on error
 set -e
@@ -9,7 +11,9 @@ echo "Starting deployment..."
 echo "Deploying API service..."
 cd "./api-easy-matters"
 cp .env.example .env
+nvm use
 npm install
+npm run build
 docker compose up -d --build
 
 # Wait for API service to start
@@ -25,6 +29,9 @@ npm run seed:run
 
 # Deploy Frontend service
 cd "../easy-matters"
+nvm use
+npm install
+npm run build
 echo -e "\nDeploying Frontend service..."
 docker compose up -d --build
 
