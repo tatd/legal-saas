@@ -7,8 +7,8 @@ Backend API for managing customers and matters, and frontend to interact with th
 - Download docker
 - Download nvm
 - Download the repo
-- From the root directory, make the scripts executable
 - Start Docker Desktop
+- From the root directory, make the scripts executable
 
 ```bash
 chmod +x deploy.sh down.sh
