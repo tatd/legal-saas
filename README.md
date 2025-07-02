@@ -39,6 +39,7 @@ cp .env.example .env
 ```bash
 nvm use
 npm install
+npm run build
 ```
 
 - start the container
@@ -60,6 +61,12 @@ npm run seed:run
 ```
 
 ### From the directory `easy-matters/`:
+
+```bash
+nvm use
+npm install
+npm run build
+```
 
 - start the container
 
