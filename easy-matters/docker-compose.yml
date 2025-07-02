@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   frontend:
     build:
@@ -9,7 +7,7 @@ services:
       - '5173:5173'
     volumes:
       - .:/app
-      - /app/node_modules # Prevent host's node_modules from overwriting container's
+      - /app/node_modules
     environment:
       # Required for hot-reloading in some Docker setups
       - CHOKIDAR_USEPOLLING=true
